@@ -62,6 +62,8 @@ int main(int argc, char const *argv[]) {
 	delete binaryImage;
 	binaryImage = NULL;
 
+	printf("OpenCV Version: %i.%i\n", CV_MAJOR_VERSION, CV_MINOR_VERSION);
+
 	return 0;
 }
 
