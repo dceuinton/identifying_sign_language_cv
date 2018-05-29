@@ -20,6 +20,7 @@ int main(int argc, char const *argv[]) {
 
 	Mat *src = new Mat();
 	*src = imread(filename);
+	Mat copy(src->size(), src->type(), Scalar(0,0,0));
 
 	// Binarizing Image
 	Mat *binaryImage = threshold(src, 2, THRESHOLD_BINARY, false);
@@ -30,14 +31,25 @@ int main(int argc, char const *argv[]) {
 	vector<Vec4i> hierarchy;
 	findContours(*binaryImage, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
+	// Drawing Contours
 	int idx = 0;
 	for (; idx >=0; idx = hierarchy[idx][0]) {
 		Scalar colour(rand() & 255, rand() & 255, rand() & 255);
-		drawContours(*src, contours, idx, colour, 1, 8, hierarchy);
+		drawContours(copy, contours, idx, colour, 1, 8, hierarchy);
 	}
 
-	displayImage(src, "Contours");
+	// Display image with contours
+	displayImage(&copy, "Contours");
 
+	// Displaying original image
+	displayImage(src, "Original");
+
+	delete src;
+	src = NULL;
+	delete binaryImage;
+	binaryImage = NULL;
 
 	return 0;
 }
+
+// void ellipticFourierDescriptors(vector<Point> &contour, vector<float> )
