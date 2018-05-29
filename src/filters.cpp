@@ -97,6 +97,7 @@ Mat* threshold(Mat *src, int thresh, int threshType, bool show) {
 
 	thresholdImage = *output;
 	thresholdType = threshType;
+	thresholdClick = thresh;
 
 	if (show) {
 		if (thresholdType == THRESHOLD_BINARY) {
@@ -111,7 +112,7 @@ Mat* threshold(Mat *src, int thresh, int threshType, bool show) {
 
 		namedWindow(actualWindow, WINDOW_AUTOSIZE);
 		createTrackbar(trackbar, actualWindow, &thresholdClick, 255, thresholdTrackbarCallback);
-		setTrackbarPos(trackbar, actualWindow, thresh);
+		setTrackbarPos(trackbar, actualWindow, thresholdClick);
 
 		imshow(actualWindow, thresholdImageFinal);
 		waitKey(0);
