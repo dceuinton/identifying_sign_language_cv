@@ -20,11 +20,9 @@ int main(int argc, char const *argv[]) {
 
 	Mat *src = new Mat();
 	*src = imread(filename);
-	// otsu(src, 10);
-	threshold(src, 10, THRESHOLD_BINARY, true);
-	// threshold(src, 10, THRESHOLD_OTSU, true);
-
-	displayImage(src, "Testing");
+	Mat *filtered = threshold(src, 10, THRESHOLD_BINARY, true);
+	// displayImage(filtered, "Filtered");
+	// displayImage(src, "Original");
 
 	return 0;
 }

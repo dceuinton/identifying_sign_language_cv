@@ -13,7 +13,7 @@ void filterToGreyScale(Mat *src);
 void filterToOnlyBlack(Mat *src);
 void filterToOnlyBlue(Mat *src);
 void medianFilter(Mat* src);
-void threshold(Mat *src, int thresh, int threshType, bool show);
+Mat* threshold(Mat *src, int thresh, int threshType, bool show);
 void otsu(Mat *src, int thresh, bool show);
 
 #endif

@@ -84,23 +84,26 @@ void thresholdTrackbarCallback(int value, void *object) {
 	imshow(actualWindow, thresholdImageFinal);
 }
 
-void threshold(Mat *src, int thresh, int threshType, bool show) {
+Mat* threshold(Mat *src, int thresh, int threshType, bool show) {
+
+	Mat *output = new Mat(src->size(), src->type());
+	*output = *src;
 
 	if (src->type() != CV_8UC1) {
-		filterToGreyScale(src);
+		filterToGreyScale(output);
 	}
 
 	const char *trackbar;
 
-	thresholdImage = *src;
+	thresholdImage = *output;
 	thresholdType = threshType;
 
 	if (show) {
-		if (threshType == THRESHOLD_BINARY) {
+		if (thresholdType == THRESHOLD_BINARY) {
 			actualWindow = binaryWindow;
 			trackbar = binaryTrackbar;
 			threshold(thresholdImage, thresholdImageFinal, thresh, 255, THRESHOLD_BINARY);
-		} else if (threshType == THRESHOLD_OTSU) {
+		} else if (thresholdType == THRESHOLD_OTSU) {
 			actualWindow = otsuWindow;
 			trackbar = otsuTrackbar;
 			threshold(thresholdImage, thresholdImageFinal, thresh, 255, THRESHOLD_OTSU);
@@ -113,6 +116,16 @@ void threshold(Mat *src, int thresh, int threshType, bool show) {
 		imshow(actualWindow, thresholdImageFinal);
 		waitKey(0);
 	}
+
+	if (thresholdType == THRESHOLD_BINARY) {
+		// printf("Click is: %i\n", thresholdClick);
+		threshold(thresholdImage, *output, thresholdClick, 255, THRESH_BINARY);
+	} else if (thresholdType == THRESHOLD_OTSU) {
+		// printf("Click is: %i\n", thresholdClick);
+		threshold(thresholdImage, *output, thresholdClick, 255, THRESH_OTSU);
+	}
+
+	return output;
 }
 
 void otsu(Mat *src, int thresh, bool show) {
