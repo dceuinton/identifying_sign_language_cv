@@ -28,7 +28,7 @@ int main(int argc, char const *argv[]) {
 	// Finding contours
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
-	findContours(*binaryImage, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);
+	findContours(*binaryImage, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
 	int idx = 0;
 	for (; idx >=0; idx = hierarchy[idx][0]) {
