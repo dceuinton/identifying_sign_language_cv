@@ -1,7 +1,7 @@
 CC = g++
 BIN = main
 OBJS = $(BUILD)/$(BIN).o $(BUILD)/filters.o
-CFLAGS = -std=c++11
+CFLAGS = -std=c++17
 INC = -I./include
 LIB = `pkg-config --libs opencv`
 

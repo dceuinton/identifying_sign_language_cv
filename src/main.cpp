@@ -2,15 +2,23 @@
 #include <stdio.h>
 #include <string>
 #include <cmath>
+#include <fstream>
 
 #include "filters.h"
 
 using namespace std;
 using namespace cv;
 
+const char *descriptorFilename = "descriptors.data";
+
 void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE);
+void writeDescriptors(const char *filename, vector<float> &CE);
+void clearContentsOfFile(const char *filename);
 
 int main(int argc, char const *argv[]) {
+	// Print version for my own knowledge (had to update it earlier)
+	printf("OpenCV Version %i.%i\n", CV_MAJOR_VERSION, CV_MINOR_VERSION);
+
 	const char *filename;
 
 	if (argc == 2) {
@@ -27,7 +35,7 @@ int main(int argc, char const *argv[]) {
 
 	// Binarizing Image
 	Mat *binaryImage = threshold(src, 2, THRESHOLD_BINARY, false);
-	displayImage(binaryImage, "Filtered");
+	// displayImage(binaryImage, "Filtered");
 
 	// Finding contours
 	vector<vector<Point>> contours;
@@ -45,24 +53,28 @@ int main(int argc, char const *argv[]) {
 		// waitKey(0);
 	}
 
+	// Get Elliptical Fourier Descriptors
 	vector<float> CE;
 	ellipticFourierDescriptors(contours[0], CE);
-	for (int i = 0; i < CE.size(); i++) {
-		printf("%i: %f\n", (i+1), CE[i]);
-	}
+	// for (int i = 0; i < CE.size(); i++) {
+	// 	printf("%i: %f\n", (i+1), CE[i]);
+	// }
 
-	// Display image with contours
-	displayImage(&copy, "Contours");
+	// File writing things
+	clearContentsOfFile(descriptorFilename);
+	// writeDescriptors(descriptorFilename, CE);
+	// writeDescriptors(descriptorFilename, CE);
 
-	// Displaying original image
-	displayImage(src, "Original");
+	// // Display image with contours
+	// displayImage(&copy, "Contours");
+
+	// // Displaying original image
+	// displayImage(src, "Original");
 
 	delete src;
 	src = NULL;
 	delete binaryImage;
 	binaryImage = NULL;
-
-	printf("OpenCV Version: %i.%i\n", CV_MAJOR_VERSION, CV_MINOR_VERSION);
 
 	return 0;
 }
@@ -94,4 +106,20 @@ void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE) {
 		CE.push_back(sqrt((ax[k] * ax[k] + ay[k] * ay[k])/(ax[0] * ax[0] + ay[0] *ay[0])) + 
 					 sqrt((bx[k] * bx[k] + by[k] * by[k])/(bx[0] * bx[0] + by[0] *by[0])));
 	}
+}
+
+void clearContentsOfFile(const char *filename) {
+	ofstream file(filename, ofstream::out | ofstream::trunc);
+	file.close();
+}
+
+void writeDescriptors(const char *filename, vector<float> &CE) {
+	ofstream file(filename, ofstream::out | ofstream::app);
+
+	for (int i = 0; i < CE.size(); i++) {
+		file << CE[i] << " ";
+	}
+	file << endl;
+
+	file.close();
 }
