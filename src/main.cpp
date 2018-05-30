@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <string>
 #include <cmath>
-#include <fstream>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <cstring>
+#include <algorithm>
 
 #include "filters.h"
 
@@ -10,10 +14,12 @@ using namespace std;
 using namespace cv;
 
 const char *descriptorFilename = "descriptors.data";
+const char *imageNamesFile = "images.txt";
 
 void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE);
 void writeDescriptors(const char *filename, vector<float> &CE);
 void clearContentsOfFile(const char *filename);
+void readInImageNames(const char *imageNameFile);//, vector<vector<String>> &imageNames);
 
 int main(int argc, char const *argv[]) {
 	// Print version for my own knowledge (had to update it earlier)
@@ -71,6 +77,9 @@ int main(int argc, char const *argv[]) {
 	// // Displaying original image
 	// displayImage(src, "Original");
 
+	// vector<vector<string>> vec;
+	readInImageNames("testImages.txt");//, vec);
+
 	delete src;
 	src = NULL;
 	delete binaryImage;
@@ -123,3 +132,65 @@ void writeDescriptors(const char *filename, vector<float> &CE) {
 
 	file.close();
 }
+
+// This vector should have the order that the images are stored in. So the the letters index is the same as the 
+// index of the vector<string>'s index in vector<vector<String>>
+vector<char> classOrder;
+vector<vector<string>> imageNames;
+
+bool contains(vector<char> &order, char element) {
+	if (find(order.begin(), order.end(), element) != order.end()) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+int getIndex(vector<char> &order, char element) {
+	if (contains(order, element)) {
+		return find(order.begin(), order.end(), element) - order.begin();	
+	} else {
+		return -1;
+	}	
+}
+
+void printImageNames() {
+	printf("Printing Image Names:\n");
+	for (int i = 0; i < imageNames.size(); i++) {
+		for (int j = 0; j < imageNames[i].size(); j++) {
+			printf("%s\n", imageNames[i][j].c_str());
+		}
+	}
+}
+
+void readInImageNames(const char *imageNameFile) {//, vector<vector<String>> &imageNames) {
+	// Read file into buffer
+	ifstream input(imageNameFile);
+	stringstream ss;
+	ss << input.rdbuf();
+	input.close();
+
+	string word;
+
+	while (getline(ss, word)) {
+		printf("%s\n", word.c_str());
+		char element = word[15];
+		printf("Character I want is: %c\n", element);
+		if (!contains(classOrder, word[15])) {
+			classOrder.push_back(element);
+			vector<string> images;
+			images.push_back(word);
+			imageNames.push_back(images);
+		} else {
+			int index = getIndex(classOrder, element);
+			imageNames[index].push_back(word);
+		}
+	}
+
+	// for (int i = 0; i < classOrder.size(); i++) {
+	// 	printf("%c\n", classOrder[i]);
+	// }
+
+	printImageNames();
+}
+
