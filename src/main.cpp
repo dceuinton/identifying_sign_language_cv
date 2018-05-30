@@ -15,11 +15,21 @@ using namespace cv;
 
 const char *descriptorFilename = "descriptors.data";
 const char *imageNamesFile = "images.txt";
+const char *ellipticalFourierDescriptorFile = "Descriptors.txt";
 
 void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE);
 void writeDescriptors(const char *filename, vector<float> &CE);
+void writeClass(const char *filename, int identifier);
 void clearContentsOfFile(const char *filename);
 void readInImageNames(const char *imageNameFile);//, vector<vector<String>> &imageNames);
+void printImageNames();
+vector<float> generateEllipticalFourierDescriptors(const char *filename);
+void writeDescriptors(const char *imageFileName, const char *outputFilename);
+
+// This vector should have the order that the images are stored in. So the the letters index is the same as the 
+// index of the vector<string>'s index in vector<vector<String>>
+vector<char> classOrder;
+vector<vector<string>> imageNames;
 
 int main(int argc, char const *argv[]) {
 	// Print version for my own knowledge (had to update it earlier)
@@ -35,55 +45,60 @@ int main(int argc, char const *argv[]) {
 		return 1;
 	}
 
-	Mat *src = new Mat();
-	*src = imread(filename);
-	Mat copy(src->size(), src->type(), Scalar(0,0,0));
+	// Mat *src = new Mat();
+	// *src = imread(filename);
+	// Mat copy(src->size(), src->type(), Scalar(0,0,0));
 
-	// Binarizing Image
-	Mat *binaryImage = threshold(src, 2, THRESHOLD_BINARY, false);
-	// displayImage(binaryImage, "Filtered");
+	// // Binarizing Image
+	// Mat *binaryImage = threshold(src, 2, THRESHOLD_BINARY, false);
+	// // displayImage(binaryImage, "Filtered");
 
-	// Finding contours
-	vector<vector<Point>> contours;
-	vector<Vec4i> hierarchy;
-	findContours(*binaryImage, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+	// // Finding contours
+	// vector<vector<Point>> contours;
+	// vector<Vec4i> hierarchy;
+	// findContours(*binaryImage, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-	// printf("Contours size: %i\n", (int)contours.size());
+	// // printf("Contours size: %i\n", (int)contours.size());
 
-	// Drawing Contours
-	int idx = 0;
-	for (; idx >=0; idx = hierarchy[idx][0]) {
-		Scalar colour(rand() & 255, rand() & 255, rand() & 255);
-		drawContours(copy, contours, idx, colour, 1, 8, hierarchy);
-		// imshow("Step", copy);
-		// waitKey(0);
-	}
-
-	// Get Elliptical Fourier Descriptors
-	vector<float> CE;
-	ellipticFourierDescriptors(contours[0], CE);
-	// for (int i = 0; i < CE.size(); i++) {
-	// 	printf("%i: %f\n", (i+1), CE[i]);
+	// // Drawing Contours
+	// int idx = 0;
+	// for (; idx >=0; idx = hierarchy[idx][0]) {
+	// 	Scalar colour(rand() & 255, rand() & 255, rand() & 255);
+	// 	drawContours(copy, contours, idx, colour, 1, 8, hierarchy);
+	// 	// imshow("Step", copy);
+	// 	// waitKey(0);
 	// }
 
-	// File writing things
-	clearContentsOfFile(descriptorFilename);
-	// writeDescriptors(descriptorFilename, CE);
-	// writeDescriptors(descriptorFilename, CE);
+	// // Get Elliptical Fourier Descriptors
+	// vector<float> CE;
+	// ellipticFourierDescriptors(contours[0], CE);
+	// // for (int i = 0; i < CE.size(); i++) {
+	// // 	printf("%i: %f\n", (i+1), CE[i]);
+	// // }
 
-	// // Display image with contours
-	// displayImage(&copy, "Contours");
+	// // File writing things
+	// clearContentsOfFile(descriptorFilename);
+	// // writeDescriptors(descriptorFilename, CE);
+	// // writeDescriptors(descriptorFilename, CE);
 
-	// // Displaying original image
-	// displayImage(src, "Original");
+	// // // Display image with contours
+	// // displayImage(&copy, "Contours");
 
-	// vector<vector<string>> vec;
-	readInImageNames("testImages.txt");//, vec);
+	// // // Displaying original image
+	// // displayImage(src, "Original");
 
-	delete src;
-	src = NULL;
-	delete binaryImage;
-	binaryImage = NULL;
+	// // vector<vector<string>> vec;
+	// readInImageNames("images.txt");//, vec);
+	// printImageNames();
+
+	// delete src;
+	// src = NULL;
+	// delete binaryImage;
+	// binaryImage = NULL;
+
+	// ---------------------------------------------------
+
+	writeDescriptors(imageNamesFile, "Random.txt");
 
 	return 0;
 }
@@ -125,7 +140,7 @@ void clearContentsOfFile(const char *filename) {
 void writeDescriptors(const char *filename, vector<float> &CE) {
 	ofstream file(filename, ofstream::out | ofstream::app);
 
-	for (int i = 0; i < CE.size(); i++) {
+	for (int i = 1; i < CE.size(); i++) {
 		file << CE[i] << " ";
 	}
 	file << endl;
@@ -133,10 +148,13 @@ void writeDescriptors(const char *filename, vector<float> &CE) {
 	file.close();
 }
 
-// This vector should have the order that the images are stored in. So the the letters index is the same as the 
-// index of the vector<string>'s index in vector<vector<String>>
-vector<char> classOrder;
-vector<vector<string>> imageNames;
+void writeClass(const char *filename, int identifier) {
+	ofstream file(filename, ofstream::out | ofstream::app);
+
+	file << identifier << " ";
+
+	file.close();
+}
 
 bool contains(vector<char> &order, char element) {
 	if (find(order.begin(), order.end(), element) != order.end()) {
@@ -157,6 +175,7 @@ int getIndex(vector<char> &order, char element) {
 void printImageNames() {
 	printf("Printing Image Names:\n");
 	for (int i = 0; i < imageNames.size(); i++) {
+		printf("\n");
 		for (int j = 0; j < imageNames[i].size(); j++) {
 			printf("%s\n", imageNames[i][j].c_str());
 		}
@@ -173,9 +192,9 @@ void readInImageNames(const char *imageNameFile) {//, vector<vector<String>> &im
 	string word;
 
 	while (getline(ss, word)) {
-		printf("%s\n", word.c_str());
+		// printf("%s\n", word.c_str());
 		char element = word[15];
-		printf("Character I want is: %c\n", element);
+		// printf("Character I want is: %c\n", element);
 		if (!contains(classOrder, word[15])) {
 			classOrder.push_back(element);
 			vector<string> images;
@@ -191,6 +210,45 @@ void readInImageNames(const char *imageNameFile) {//, vector<vector<String>> &im
 	// 	printf("%c\n", classOrder[i]);
 	// }
 
-	printImageNames();
+	// printImageNames();
+}
+
+vector<float> generateEllipticalFourierDescriptors(const char *filename) {
+	Mat *src = new Mat();
+	*src = imread(filename);
+	Mat copy(src->size(), src->type(), Scalar(0,0,0));
+	Mat *binaryImage = threshold(src, 2, THRESHOLD_BINARY, false);
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
+	findContours(*binaryImage, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+	int idx = 0;
+	for (; idx >=0; idx = hierarchy[idx][0]) {
+		Scalar colour(rand() & 255, rand() & 255, rand() & 255);
+		drawContours(copy, contours, idx, colour, 1, 8, hierarchy);
+	}
+
+	vector<float> CE;
+	ellipticFourierDescriptors(contours[0], CE);
+
+	delete src;
+	src = NULL;
+	return CE;
+}
+
+void writeDescriptors(const char *imageFileName, const char *outputFilename) {
+	readInImageNames(imageNamesFile);
+
+	clearContentsOfFile(descriptorFilename);
+
+	for (int i = 0; i < imageNames.size(); i++) {
+		for (int j = 0; j < imageNames[i].size(); j++) {
+			vector<float> CE = generateEllipticalFourierDescriptors(imageNames[i][j].c_str());
+			writeClass(descriptorFilename, i);
+			writeDescriptors(descriptorFilename, CE);
+		}
+	}
+	// vector<float> CE = generateEllipticalFourierDescriptors(imageNames[0][0].c_str());
+	// writeDescriptors(descriptorFilename, CE);
 }
 
