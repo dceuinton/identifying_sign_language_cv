@@ -133,28 +133,28 @@ cout << "Predict:  r = " << r << endl;
     }
 /*************   Example of how to predict a single sample ************************/   
 // Use that for the assignment3, for every frame after computing the features, r is the prediction given the features listed in this format
-    //Mat sample = data.row(i);
-    Mat sample1 = (Mat_<float>(1,9) << 1.52101, 13.64, 4.4899998, 1.1, 71.779999, 0.059999999, 8.75, 0, 0);// 1
+    // Mat sample = data.row(i);
+    Mat sample1 = (Mat_<float>(1,19) << 0.311854,0.116239,0.0829055,0.141323,0.0656238,0.0636327,0.0224489,0.0309185,0.0284429,0.0259074,0.0207717,0.0197823,0.0138851,0.0143731,0.0247183,0.0144176,0.00153619,0.0110208,0.014574);// 1
     float r = model->predict( sample1 );
     cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,9) << 1.518, 13.71, 3.9300001, 1.54, 71.809998, 0.54000002, 8.21, 0, 0.15000001);//2
+    sample1 = (Mat_<float>(1,19) << 0.709728,0.188076,0.287404,0.221767,0.248526,0.115461,0.135932,0.114021,0.0690536,0.0847341,0.0420376,0.0423313,0.0186453,0.0162065,0.0290711,0.02746,0.0231138,0.0101166,0.00765132);//2
     r = model->predict( sample1 );
     cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,9) << 1.51694,12.86,3.58,1.31,72.61,0.61,8.79,0,0);//3
+    sample1 = (Mat_<float>(1,19) << 0.395994,0.184592,0.129218,0.0653404,0.0762949,0.0424903,0.0292621,0.0318459,0.0307545,0.029262,0.0348279,0.0290044,0.0249213,0.0109107,0.0191704,0.00645924,0.00935855,0.00785009,0.0115264);//3
     r = model->predict( sample1 );
     cout << "Prediction: " << r << endl;
 //    sample1 = (Mat_<float>(1,9) << );//4
 //    r = model->predict( sample1 );
 //    cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,9) << 1.5151401, 14.01, 2.6800001, 3.5, 69.889999, 1.6799999, 5.8699999, 2.2, 0);//5
-    r = model->predict( sample1 );
-    cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,9) << 1.51852, 14.09, 2.1900001, 1.66, 72.669998, 0, 9.3199997, 0, 0);//6
-    r = model->predict( sample1 );
-    cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,9) << 1.51131,13.69,3.2,1.81,72.81,1.76,5.43,1.19,0);//7
-    r = model->predict( sample1 );
-    cout << "Prediction: " << r << endl;
+    // sample1 = (Mat_<float>(1,19) << 1.5151401, 14.01, 2.6800001, 3.5, 69.889999, 1.6799999, 5.8699999, 2.2, 0);//5
+    // r = model->predict( sample1 );
+    // cout << "Prediction: " << r << endl;
+    // sample1 = (Mat_<float>(1,19) << 1.51852, 14.09, 2.1900001, 1.66, 72.669998, 0, 9.3199997, 0, 0);//6
+    // r = model->predict( sample1 );
+    // cout << "Prediction: " << r << endl;
+    // sample1 = (Mat_<float>(1,19) << 1.51131,13.69,3.2,1.81,72.81,1.76,5.43,1.19,0);//7
+    // r = model->predict( sample1 );
+    // cout << "Prediction: " << r << endl;
     
 /**********************************************************************/    
     
@@ -167,11 +167,11 @@ build_mlp_classifier( const string& data_filename,
                       const string& filename_to_save,
                       const string& filename_to_load )
 {
-    const int class_count = 7;//CLASSES
+    const int class_count = 36;//CLASSES
     Mat data;
     Mat responses;
 
-    bool ok = read_num_class_data( data_filename, 9, &data, &responses );//third parameter: FEATURES
+    bool ok = read_num_class_data( data_filename, 19, &data, &responses );//third parameter: FEATURES
     if( !ok )
         return ok;
 
@@ -222,7 +222,7 @@ build_mlp_classifier( const string& data_filename,
 #if 1
         int method = ANN_MLP::BACKPROP;
         double method_param = 0.001;
-        int max_iter = 300;
+        int max_iter = 3000; // 2000 is best so far
 #else
         int method = ANN_MLP::RPROP;
         double method_param = 0.1;
@@ -243,6 +243,7 @@ build_mlp_classifier( const string& data_filename,
 
     //test_and_save_classifier(model, data, responses, ntrain_samples, 'A', filename_to_save);
     test_and_save_classifier(model, data, responses, ntrain_samples, 0, filename_to_save);
+    // printf("DALES DEBUGGING ------- Data.cols: %i\n", (int) data.cols);
     return true;
 }
 

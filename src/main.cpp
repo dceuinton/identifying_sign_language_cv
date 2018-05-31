@@ -149,7 +149,7 @@ void writeDescriptors(const char *filename, vector<float> &CE) {
 	ofstream file(filename, ofstream::out | ofstream::app);
 
 	for (int i = 1; i < CE.size(); i++) {
-		file << CE[i] << ",";
+		file << "," << CE[i];
 	}
 	file << endl;
 
@@ -159,7 +159,7 @@ void writeDescriptors(const char *filename, vector<float> &CE) {
 void writeClass(const char *filename, int identifier) {
 	ofstream file(filename, ofstream::out | ofstream::app);
 
-	file << identifier << ",";
+	file << (identifier + 1);
 
 	file.close();
 }
