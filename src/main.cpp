@@ -26,7 +26,7 @@ const char *classOrderFile = "classOrderFile.txt";
 void saveOrderOfClassesToFile(const char *classOrderFile);
 void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE);
 void writeDescriptors(const char *filename, vector<float> &CE);
-void writeClass(const char *filename, int identifier);
+void writeClass(const char *filename, char identifier);
 void clearContentsOfFile(const char *filename);
 void readInImageNames(const char *imageNamesFile);//, vector<vector<String>> &imageNames);
 void printImageNames();
@@ -35,36 +35,60 @@ void writeDescriptors(const char *imageFileName, const char *outputFilename);
 template<typename T>
 static Ptr<T> load_classifier(const string &filename);
 void initKeyForClasses();
+float getPrediction(const char *filename);
+string getValue(float prediction);
+bool isInString(char element, string word);
+void sortFileIntoOrder(const char *filename);
 
 // This vector should have the order that the images are stored in. So the the letters index is the same as the 
 // index of the vector<string>'s index in vector<vector<String>>
 vector<char> classOrder;
 vector<vector<string>> imageNames;
 map<char, int> keyForClasses;
+Ptr<ANN_MLP> model;
 
 int main(int argc, char const *argv[]) {
 	// Print version for my own knowledge (had to update it earlier)
-	printf("OpenCV Version %i.%i\n", CV_MAJOR_VERSION, CV_MINOR_VERSION);
+	// printf("OpenCV Version %i.%i\n", CV_MAJOR_VERSION, CV_MINOR_VERSION);
 
 	initKeyForClasses();
-	const char *filename;
-	Ptr<ANN_MLP> model;
+	const char *filename;	
 	model = load_classifier<ANN_MLP>(classifier);
 
 	if (argc == 2) {
 		filename = argv[1];
-		printf("Opening %s\n", filename);		
+		// printf("Opening %s\n", filename);		
 	} else {
 		printf("Usage: main <filename>\n");
 		return 1;
 	}
 
-	vector<float> CE = generateEllipticalFourierDescriptors(filename);
-	Mat sample = (Mat_<float>(1, 19) << CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], 
-										CE[7], CE[8], CE[9], CE[10], CE[11], CE[12], 
-										CE[13], CE[14], CE[15], CE[16], CE[17], CE[18], CE[19]);
-	float r = model->predict(sample);
-	printf("Predicted: %f\n", r);
+	int trueNum = 0;
+	int falseNum = 0;
+	// printf("Sign: %c, Predicted: %s\n", filename[17], getValue(getPrediction(filename)).c_str());
+
+	if (isInString(filename[17], getValue(getPrediction(filename)))) {
+		// printf("True\n");
+		trueNum++;
+		return 1;
+	} else {
+		// printf("False\n");
+		falseNum++;
+		return 0;
+	}
+
+	// printf("True: %i, False: %i\n", trueNum, falseNum);
+
+	// --------------------------------------------------------------------------------
+
+	// vector<float> CE = generateEllipticalFourierDescriptors(filename);
+	// Mat sample = (Mat_<float>(1, 14) << CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], 
+	// 									CE[7], CE[8], CE[9], CE[10], CE[11], CE[12], 
+	// 									CE[13], CE[14]);
+	// float r = model->predict(sample);
+	// printf("Predicted: %f\n", r);
+
+	// --------------------------------------------------------------------------------
 
 	// Mat *src = new Mat();
 	// *src = imread(filename);
@@ -132,6 +156,10 @@ int main(int argc, char const *argv[]) {
 	// printf("Written Elliptical Fourier Descriptors into file: %s\n", output);
 	// writeDescriptors(input, output);
 	// saveOrderOfClassesToFile("classOrderFile.txt");
+
+	// sortFileIntoOrder(imageDescriptorsFile);
+
+
 	
 	return 0;
 }
@@ -173,6 +201,81 @@ void initKeyForClasses() {
 	keyForClasses['x'] = 23;
 	keyForClasses['y'] = 24;
 	keyForClasses['z'] = 2;
+}
+
+float getPrediction(const char *filename) {
+	vector<float> CE = generateEllipticalFourierDescriptors(filename);
+	Mat sample = (Mat_<float>(1, 14) << CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], 
+										CE[7], CE[8], CE[9], CE[10], CE[11], CE[12], 
+										CE[13], CE[14]);
+	float r = model->predict(sample);
+	// printf("Predicted: %f\n", r);
+	return r;
+}
+
+bool isInString(char element, string word) {
+	if (find(word.begin(), word.end(), element) != word.end()) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+string getValue(float prediction) {
+	string result = "Undefined";
+	if (prediction == 1.0f) {
+		result = "[0, o]";
+	}
+	else if (prediction == 2.0f) {
+		result = "[1, d, g, z]";
+	}
+	else if (prediction == 3.0f) {
+		result = "[2, k, v]";
+	} else if (prediction == 4.0f) {
+		result = "[3, k]";
+	} else if (prediction == 5.0f) {
+		result = "[4]";
+	} else if (prediction == 6.0f) {
+		result = "[5]";
+	} else if (prediction == 7.0f) {
+		result = "[6, w]";
+	} else if (prediction == 8.0f) {
+		result = "[7]";
+	} else if (prediction == 9.0f) {
+		result = "[8]";
+	} else if (prediction == 10.0f) {
+		result = "[9]";
+	} else if (prediction == 11.0f) {
+		result = "[a, m, s, t]";
+	} else if (prediction == 12.0f) {
+		result = "[b]";
+	} else if (prediction == 13.0f) {
+		result = "[c]";
+	} else if (prediction == 14.0f) {
+		result = "[e]";
+	} else if (prediction == 15.0f) {
+		result = "[f]";
+	} else if (prediction == 16.0f) {
+		result = "[h, u]";
+	} else if (prediction == 17.0f) {
+		result = "[i, j]";
+	} else if (prediction == 18.0f) {
+		result = "[l]";
+	} else if (prediction == 19.0f) {
+		result = "[n]";
+	} else if (prediction == 20.0f) {
+		result = "[p]";
+	} else if (prediction == 21.0f) {
+		result = "[q]";
+	} else if (prediction == 22.0f) {
+		result = "[r]";
+	} else if (prediction == 23.0f) {
+		result = "[x]";
+	} else if (prediction == 24.0f) {
+		result = "[y]";
+	}
+
+	return result;
 }
 
 // The C implementation that I borrowed from the lecture slides and notes. 
@@ -231,10 +334,10 @@ void writeDescriptors(const char *filename, vector<float> &CE) {
 	file.close();
 }
 
-void writeClass(const char *filename, int identifier) {
+void writeClass(const char *filename, char identifier) {
 	ofstream file(filename, ofstream::out | ofstream::app);
 
-	file << (identifier + 1);
+	file << (keyForClasses.at(identifier));
 
 	file.close();
 }
@@ -276,15 +379,15 @@ void readInImageNames(const char *imageNamesFile) {//, vector<vector<String>> &i
 
 	while (getline(ss, word)) {
 		// printf("%s\n", word.c_str());
-		char element = word[15];
+		char identifier = word[15];
 		// printf("Character I want is: %c\n", element);
 		if (!contains(classOrder, word[15])) {
-			classOrder.push_back(element);
+			classOrder.push_back(identifier);
 			vector<string> images;
 			images.push_back(word);
 			imageNames.push_back(images);
 		} else {
-			int index = getIndex(classOrder, element);
+			int index = getIndex(classOrder, identifier);
 			imageNames[index].push_back(word);
 		}
 	}
@@ -311,6 +414,9 @@ vector<float> generateEllipticalFourierDescriptors(const char *filename) {
 		drawContours(copy, contours, idx, colour, 1, 8, hierarchy);
 	}
 
+	// imshow(filename, copy);
+	// waitKey(0);
+
 	vector<float> CE;
 	ellipticFourierDescriptors(contours[0], CE);
 
@@ -329,7 +435,10 @@ void writeDescriptors(const char *imageFileName, const char *outputFilename) {
 	for (int i = 0; i < imageNames.size(); i++) {
 		for (int j = 0; j < imageNames[i].size(); j++) {
 			vector<float> CE = generateEllipticalFourierDescriptors(imageNames[i][j].c_str());
-			writeClass(outputFilename, i);
+			char identifier = imageNames[i][j][17];
+			// printf("%s\n", imageNames[i][j].c_str());
+			// cout << "identifier " << identifier << endl;
+			writeClass(outputFilename, identifier);
 			writeDescriptors(outputFilename, CE);
 		}
 	}
@@ -342,7 +451,73 @@ static Ptr<T> load_classifier(const string &filename) {
     if( model.empty() )
         cout << "Could not read the classifier " << filename<< endl;
     else
-        cout << "The classifier " << filename << " is loaded.\n";
+        // cout << "The classifier " << filename << " is loaded.\n";
 
     return model;
+}
+
+bool mySortFunction(const string &lhs, const string &rhs) {
+	stringstream lhsSS;
+	stringstream rhsSS;
+	lhsSS.str(lhs);
+	rhsSS.str(rhs);
+
+	string lNum;
+	string rNum;
+
+	getline(lhsSS, lNum, ',');
+	getline(rhsSS, rNum, ',');
+
+	int lInt = atoi(lNum.c_str());
+	int rInt = atoi(rNum.c_str());
+
+	printf("Strings %s, %s\n", lNum.c_str(), rNum.c_str());
+	printf("Numbers %i, %i\n", lInt, rInt);
+
+
+	// printf("%c, %c\n", lhs[0], rhs[0]);
+	if (lInt < rInt) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+void sortFileIntoOrder(const char *filename) {
+	ifstream file(filename);
+	stringstream ss;
+	ss << file.rdbuf();
+	file.close();
+
+	string line;
+
+	vector<string> lines;
+
+	while(getline(ss, line)) {
+		// stringstream ss2;
+		// ss2.str(line);
+		// string firstNum;
+		// getline(ss2, firstNum, ',');
+		// printf("%s\n", firstNum.c_str());
+		// printf("%s\n", line.c_str());
+		lines.push_back(line);
+	}
+
+	printf("Step 1\n");
+
+	sort(lines.begin(), lines.end(), mySortFunction);
+
+	printf("Step 2\n");
+
+	clearContentsOfFile(filename);
+
+	ofstream output(filename, ofstream::out | ofstream::app);
+
+	printf("Step 3\n");
+
+	for (int i = 0; i < lines.size(); i++) {
+		output << lines[i] << endl;
+	}
+
+	output.close();
 }
