@@ -13,15 +13,17 @@
 using namespace std;
 using namespace cv;
 
-const char *descriptorFilename = "descriptors.data";
+const char *imageDescriptorsFile = "descriptors.data";
 const char *imageNamesFile = "images.txt";
 const char *ellipticalFourierDescriptorFile = "Descriptors.txt";
+const char *testImageNamesFile = "testImages.txt";
+const char *testImageDescriptorsFile = "testDescriptors.txt";
 
 void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE);
 void writeDescriptors(const char *filename, vector<float> &CE);
 void writeClass(const char *filename, int identifier);
 void clearContentsOfFile(const char *filename);
-void readInImageNames(const char *imageNameFile);//, vector<vector<String>> &imageNames);
+void readInImageNames(const char *imageNamesFile);//, vector<vector<String>> &imageNames);
 void printImageNames();
 vector<float> generateEllipticalFourierDescriptors(const char *filename);
 void writeDescriptors(const char *imageFileName, const char *outputFilename);
@@ -77,9 +79,9 @@ int main(int argc, char const *argv[]) {
 	// // }
 
 	// // File writing things
-	// clearContentsOfFile(descriptorFilename);
-	// // writeDescriptors(descriptorFilename, CE);
-	// // writeDescriptors(descriptorFilename, CE);
+	// clearContentsOfFile(imageDescriptorsFile);
+	// // writeDescriptors(imageDescriptorsFile, CE);
+	// // writeDescriptors(imageDescriptorsFile, CE);
 
 	// // // Display image with contours
 	// // displayImage(&copy, "Contours");
@@ -98,8 +100,14 @@ int main(int argc, char const *argv[]) {
 
 	// ---------------------------------------------------
 
-	writeDescriptors(imageNamesFile, "Random.txt");
+	const char *input = imageNamesFile;
+	const char *output = imageDescriptorsFile;
 
+	// Writing descriptors from files
+	printf("Reading image names from file: %s\n", input);
+	printf("Written Elliptical Fourier Descriptors into file: %s\n", output);
+	writeDescriptors(input, output);
+	
 	return 0;
 }
 
@@ -141,7 +149,7 @@ void writeDescriptors(const char *filename, vector<float> &CE) {
 	ofstream file(filename, ofstream::out | ofstream::app);
 
 	for (int i = 1; i < CE.size(); i++) {
-		file << CE[i] << " ";
+		file << CE[i] << ",";
 	}
 	file << endl;
 
@@ -151,7 +159,7 @@ void writeDescriptors(const char *filename, vector<float> &CE) {
 void writeClass(const char *filename, int identifier) {
 	ofstream file(filename, ofstream::out | ofstream::app);
 
-	file << identifier << " ";
+	file << identifier << ",";
 
 	file.close();
 }
@@ -182,9 +190,9 @@ void printImageNames() {
 	}
 }
 
-void readInImageNames(const char *imageNameFile) {//, vector<vector<String>> &imageNames) {
+void readInImageNames(const char *imageNamesFile) {//, vector<vector<String>> &imageNames) {
 	// Read file into buffer
-	ifstream input(imageNameFile);
+	ifstream input(imageNamesFile);
 	stringstream ss;
 	ss << input.rdbuf();
 	input.close();
@@ -236,19 +244,19 @@ vector<float> generateEllipticalFourierDescriptors(const char *filename) {
 	return CE;
 }
 
-void writeDescriptors(const char *imageFileName, const char *outputFilename) {
-	readInImageNames(imageNamesFile);
+// Will write the class and fourier descriptors from the file of image names into the file outputFileName
 
-	clearContentsOfFile(descriptorFilename);
+void writeDescriptors(const char *imageFileName, const char *outputFilename) {
+	readInImageNames(imageFileName);
+
+	clearContentsOfFile(outputFilename);
 
 	for (int i = 0; i < imageNames.size(); i++) {
 		for (int j = 0; j < imageNames[i].size(); j++) {
 			vector<float> CE = generateEllipticalFourierDescriptors(imageNames[i][j].c_str());
-			writeClass(descriptorFilename, i);
-			writeDescriptors(descriptorFilename, CE);
+			writeClass(outputFilename, i);
+			writeDescriptors(outputFilename, CE);
 		}
 	}
-	// vector<float> CE = generateEllipticalFourierDescriptors(imageNames[0][0].c_str());
-	// writeDescriptors(descriptorFilename, CE);
 }
 
