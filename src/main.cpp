@@ -7,18 +7,23 @@
 #include <sstream>
 #include <cstring>
 #include <algorithm>
+#include "opencv2/ml/ml.hpp"
 
 #include "filters.h"
 
 using namespace std;
 using namespace cv;
+using namespace cv::ml;
 
 const char *imageDescriptorsFile = "descriptors.data";
 const char *imageNamesFile = "images.txt";
 const char *ellipticalFourierDescriptorFile = "Descriptors.txt";
 const char *testImageNamesFile = "testImages.txt";
 const char *testImageDescriptorsFile = "testDescriptors.txt";
+const char *classifier = "a3classifier.xml";
+const char *classOrderFile = "classOrderFile.txt";
 
+void saveOrderOfClassesToFile(const char *classOrderFile);
 void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE);
 void writeDescriptors(const char *filename, vector<float> &CE);
 void writeClass(const char *filename, int identifier);
@@ -27,6 +32,8 @@ void readInImageNames(const char *imageNamesFile);//, vector<vector<String>> &im
 void printImageNames();
 vector<float> generateEllipticalFourierDescriptors(const char *filename);
 void writeDescriptors(const char *imageFileName, const char *outputFilename);
+template<typename T>
+static Ptr<T> load_classifier(const string &filename);
 
 // This vector should have the order that the images are stored in. So the the letters index is the same as the 
 // index of the vector<string>'s index in vector<vector<String>>
@@ -38,6 +45,8 @@ int main(int argc, char const *argv[]) {
 	printf("OpenCV Version %i.%i\n", CV_MAJOR_VERSION, CV_MINOR_VERSION);
 
 	const char *filename;
+	Ptr<ANN_MLP> model;
+	model = load_classifier<ANN_MLP>(classifier);
 
 	if (argc == 2) {
 		filename = argv[1];
@@ -46,6 +55,13 @@ int main(int argc, char const *argv[]) {
 		printf("Usage: main <filename>\n");
 		return 1;
 	}
+
+	vector<float> CE = generateEllipticalFourierDescriptors(filename);
+	Mat sample = (Mat_<float>(1, 19) << CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], 
+										CE[7], CE[8], CE[9], CE[10], CE[11], CE[12], 
+										CE[13], CE[14], CE[15], CE[16], CE[17], CE[18], CE[19]);
+	float r = model->predict(sample);
+	printf("Predicted: %f\n", r);
 
 	// Mat *src = new Mat();
 	// *src = imread(filename);
@@ -93,6 +109,10 @@ int main(int argc, char const *argv[]) {
 	// readInImageNames("images.txt");//, vec);
 	// printImageNames();
 
+	// // Mat *src = new Mat();
+	// // *src = imread(filename);
+	// // threshold(src, 40,THRESHOLD_BINARY, true);
+
 	// delete src;
 	// src = NULL;
 	// delete binaryImage;
@@ -100,13 +120,15 @@ int main(int argc, char const *argv[]) {
 
 	// ---------------------------------------------------
 
-	const char *input = imageNamesFile;
-	const char *output = imageDescriptorsFile;
+	// const char *input = imageNamesFile;
+	// const char *output = imageDescriptorsFile;
 
-	// Writing descriptors from files
-	printf("Reading image names from file: %s\n", input);
-	printf("Written Elliptical Fourier Descriptors into file: %s\n", output);
-	writeDescriptors(input, output);
+
+	// // Writing descriptors from files
+	// printf("Reading image names from file: %s\n", input);
+	// printf("Written Elliptical Fourier Descriptors into file: %s\n", output);
+	// writeDescriptors(input, output);
+	// saveOrderOfClassesToFile("classOrderFile.txt");
 	
 	return 0;
 }
@@ -138,6 +160,17 @@ void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE) {
 		CE.push_back(sqrt((ax[k] * ax[k] + ay[k] * ay[k])/(ax[0] * ax[0] + ay[0] *ay[0])) + 
 					 sqrt((bx[k] * bx[k] + by[k] * by[k])/(bx[0] * bx[0] + by[0] *by[0])));
 	}
+}
+
+void saveOrderOfClassesToFile(const char *classOrderFile) {
+	clearContentsOfFile(classOrderFile);
+	ofstream file(classOrderFile, ofstream::out | ofstream::app);
+	for (int i = 0; i < classOrder.size(); i++) {
+		file << classOrder[i] << endl;
+	}
+
+	file.close();
+
 }
 
 void clearContentsOfFile(const char *filename) {
@@ -260,3 +293,14 @@ void writeDescriptors(const char *imageFileName, const char *outputFilename) {
 	}
 }
 
+template<typename T> 
+static Ptr<T> load_classifier(const string &filename) {
+
+	Ptr<T> model = StatModel::load<T>( filename );
+    if( model.empty() )
+        cout << "Could not read the classifier " << filename<< endl;
+    else
+        cout << "The classifier " << filename << " is loaded.\n";
+
+    return model;
+}
