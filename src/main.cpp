@@ -34,16 +34,19 @@ vector<float> generateEllipticalFourierDescriptors(const char *filename);
 void writeDescriptors(const char *imageFileName, const char *outputFilename);
 template<typename T>
 static Ptr<T> load_classifier(const string &filename);
+void initKeyForClasses();
 
 // This vector should have the order that the images are stored in. So the the letters index is the same as the 
 // index of the vector<string>'s index in vector<vector<String>>
 vector<char> classOrder;
 vector<vector<string>> imageNames;
+map<char, int> keyForClasses;
 
 int main(int argc, char const *argv[]) {
 	// Print version for my own knowledge (had to update it earlier)
 	printf("OpenCV Version %i.%i\n", CV_MAJOR_VERSION, CV_MINOR_VERSION);
 
+	initKeyForClasses();
 	const char *filename;
 	Ptr<ANN_MLP> model;
 	model = load_classifier<ANN_MLP>(classifier);
@@ -133,11 +136,50 @@ int main(int argc, char const *argv[]) {
 	return 0;
 }
 
+void initKeyForClasses() {
+	keyForClasses['0'] = 1;
+	keyForClasses['1'] = 2;
+	keyForClasses['2'] = 3;
+	keyForClasses['3'] = 4;
+	keyForClasses['4'] = 5;
+	keyForClasses['5'] = 6;
+	keyForClasses['6'] = 7;
+	keyForClasses['7'] = 8;
+	keyForClasses['8'] = 9;
+	keyForClasses['9'] = 10;
+	keyForClasses['a'] = 11;
+	keyForClasses['b'] = 12;
+	keyForClasses['c'] = 13;
+	keyForClasses['d'] = 2;
+	keyForClasses['e'] = 14;
+	keyForClasses['f'] = 15;
+	keyForClasses['g'] = 2;
+	keyForClasses['h'] = 16;
+	keyForClasses['i'] = 17;
+	keyForClasses['j'] = 17;
+	keyForClasses['k'] = 3;
+	keyForClasses['l'] = 18;
+	keyForClasses['m'] = 11;
+	keyForClasses['n'] = 19;
+	keyForClasses['o'] = 1;
+	keyForClasses['p'] = 20;
+	keyForClasses['q'] = 21;
+	keyForClasses['r'] = 22;
+	keyForClasses['s'] = 11;
+	keyForClasses['t'] = 11;
+	keyForClasses['u'] = 16;
+	keyForClasses['v'] = 3;
+	keyForClasses['w'] = 7;
+	keyForClasses['x'] = 23;
+	keyForClasses['y'] = 24;
+	keyForClasses['z'] = 2;
+}
+
 // The C implementation that I borrowed from the lecture slides and notes. 
 void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE) {
 	vector<float> ax, ay, bx, by;
 	int m = contour.size();
-	int n = 20;                        // Number of CEs 
+	int n = 15;                        // Number of CEs 
 	float t = (2*M_PI)/m;
 
 	for (int k = 0; k < n; k++) {
