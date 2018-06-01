@@ -134,27 +134,61 @@ cout << "Predict:  r = " << r << endl;
 /*************   Example of how to predict a single sample ************************/   
 // Use that for the assignment3, for every frame after computing the features, r is the prediction given the features listed in this format
     // Mat sample = data.row(i);
-    Mat sample1 = (Mat_<float>(1,14) << 0.0952995,0.169177,0.0592047,0.0618227,0.0319202,0.0125807,0.0169665,0.0175996,0.0172938,0.0214138,0.0122307,0.0105928,0.00865961,0.00718095);// 1
-    float r = model->predict( sample1 );
-    cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,14) << 0.394995,0.323635,0.164296,0.0473424,0.0432019,0.0361735,0.0548237,0.037759,0.0335067,0.0148624,0.0180722,0.0240899,0.0175381,0.0110956);//2
-    r = model->predict( sample1 );
-    cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,14) << 0.529972,0.370616,0.304438,0.200361,0.0747549,0.072658,0.0423362,0.0658548,0.042409,0.0309975,0.043568,0.0277283,0.0177653,0.0245778);//3
-    r = model->predict( sample1 );
-    cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,14) << 0.536639,0.131383,0.239704,0.289744,0.214504,0.157104,0.113756,0.0488208,0.0335598,0.0304096,0.0277343,0.0321744,0.031369,0.0314621);//4
-    r = model->predict( sample1 );
-    cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,14) << 0.778576,0.354334,0.183864,0.209804,0.324091,0.247657,0.195179,0.111713,0.0603599,0.0429004,0.0505883,0.0515825,0.0534233,0.0213703);//5
-    r = model->predict( sample1 );
-    cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,14) << 0.644056,0.338977,0.323534,0.134752,0.259656,0.340568,0.192196,0.162745,0.0409341,0.0423454,0.042068,0.0310394,0.0353203,0.0501668);//6
-    r = model->predict( sample1 );
-    cout << "Prediction: " << r << endl;
-    sample1 = (Mat_<float>(1,14) << 0.479818,0.269357,0.199477,0.185035,0.298081,0.247759,0.0531962,0.0653802,0.0512507,0.0244664,0.0371893,0.0537663,0.0542912,0.031215);//7
-    r = model->predict( sample1 );
-    cout << "Prediction: " << r << endl;
+
+    float r;
+    
+    // 1
+    // Mat sample0 = (Mat_<float>(1, 9) << 0.483537,0.0897202,0.0896418,0.0904506,0.0587337,0.027807,0.00611194,0.0210563,0.0212424);
+    Mat sample0 = (Mat_<float>(1, 9) << 0.192112,0.209336,0.0675378,0.0860401,0.0592248,0.0402964,0.0492288,0.0460786,0.0377082);
+    r = model->predict(sample0);
+    printf("Predicted: %f\n", r);
+
+    // 2 
+    Mat sample1 = (Mat_<float>(1, 9) << 0.288093,0.263243,0.150342,0.13571,0.0671558,0.0666056,0.0320719,0.0334513,0.0270351);
+    r = model->predict(sample1);
+    printf("Predicted: %f\n", r);
+
+    // 3
+    Mat sample2 = (Mat_<float>(1, 9) << 0.863456,0.546805,0.379552,0.186811,0.167384,0.0793804,0.0974595,0.0781477,0.0230621);
+    r = model->predict(sample2);
+    printf("Predicted: %f\n", r);
+
+    // 4
+    Mat sample3 = (Mat_<float>(1, 9) << 0.67012,0.196405,0.460634,0.20463,0.116233,0.0743352,0.0783094,0.0690908,0.0195137);
+    r = model->predict(sample3);
+    printf("Predicted: %f\n", r);
+
+    // 5
+    Mat sample4 = (Mat_<float>(1, 9) << 1.20807,0.374261,0.27939,0.320042,0.273963,0.15068,0.119287,0.129897,0.061082);
+    r = model->predict(sample4);
+    printf("Predicted: %f\n", r);
+
+    // 6
+    Mat sample5 = (Mat_<float>(1, 9) << 0.583613,0.341947,0.123211,0.163423,0.101956,0.184059,0.230072,0.186048,0.0613964);
+    r = model->predict(sample5);
+    printf("Predicted: %f\n", r);
+
+    // Mat sample1 = (Mat_<float>(1,14) << 0.0952995,0.169177,0.0592047,0.0618227,0.0319202,0.0125807,0.0169665,0.0175996,0.0172938,0.0214138,0.0122307,0.0105928,0.00865961,0.00718095);// 1
+    // float r = model->predict( sample1 );
+    // cout << "Prediction: " << r << endl;
+    // sample1 = (Mat_<float>(1,14) << 0.394995,0.323635,0.164296,0.0473424,0.0432019,0.0361735,0.0548237,0.037759,0.0335067,0.0148624,0.0180722,0.0240899,0.0175381,0.0110956);//2
+    // r = model->predict( sample1 );
+    // cout << "Prediction: " << r << endl;
+    // sample1 = (Mat_<float>(1,14) << 0.529972,0.370616,0.304438,0.200361,0.0747549,0.072658,0.0423362,0.0658548,0.042409,0.0309975,0.043568,0.0277283,0.0177653,0.0245778);//3
+    // r = model->predict( sample1 );
+    // cout << "Prediction: " << r << endl;
+    // sample1 = (Mat_<float>(1,14) << 0.536639,0.131383,0.239704,0.289744,0.214504,0.157104,0.113756,0.0488208,0.0335598,0.0304096,0.0277343,0.0321744,0.031369,0.0314621);//4
+    // r = model->predict( sample1 );
+    // cout << "Prediction: " << r << endl;
+    // sample1 = (Mat_<float>(1,14) << 0.778576,0.354334,0.183864,0.209804,0.324091,0.247657,0.195179,0.111713,0.0603599,0.0429004,0.0505883,0.0515825,0.0534233,0.0213703);//5
+    // r = model->predict( sample1 );
+    // cout << "Prediction: " << r << endl;
+    // sample1 = (Mat_<float>(1,14) << 0.644056,0.338977,0.323534,0.134752,0.259656,0.340568,0.192196,0.162745,0.0409341,0.0423454,0.042068,0.0310394,0.0353203,0.0501668);//6
+    // r = model->predict( sample1 );
+    // cout << "Prediction: " << r << endl;
+    // sample1 = (Mat_<float>(1,14) << 0.479818,0.269357,0.199477,0.185035,0.298081,0.247759,0.0531962,0.0653802,0.0512507,0.0244664,0.0371893,0.0537663,0.0542912,0.031215);//7
+    // r = model->predict( sample1 );
+    // cout << "Prediction: " << r << endl;
     
 /**********************************************************************/    
     
@@ -171,7 +205,7 @@ build_mlp_classifier( const string& data_filename,
     Mat data;
     Mat responses;
 
-    bool ok = read_num_class_data( data_filename, 14, &data, &responses );//third parameter: FEATURES
+    bool ok = read_num_class_data( data_filename, 9, &data, &responses );//third parameter: FEATURES
     if( !ok )
         return ok;
 
@@ -186,7 +220,7 @@ build_mlp_classifier( const string& data_filename,
         model = load_classifier<ANN_MLP>(filename_to_load);
         if( model.empty() )
             return false;
-        //ntrain_samples = 0;
+        // ntrain_samples = 0;
     }
     else
     {
@@ -214,6 +248,7 @@ build_mlp_classifier( const string& data_filename,
 
         // 2. train classifier
         int layer_sz[] = { data.cols, 100, 100, class_count };
+        // int layer_sz[] = { data.cols, 100, class_count };
 	cout <<  " sizeof layer_sz " << sizeof(layer_sz) << " sizeof layer_sz[0]) " << sizeof(layer_sz[0]) << endl;
         int nlayers = (int)(sizeof(layer_sz)/sizeof(layer_sz[0]));
 	cout << " nlayers  " << nlayers << endl;
@@ -221,8 +256,8 @@ build_mlp_classifier( const string& data_filename,
 
 #if 1
         int method = ANN_MLP::BACKPROP;
-        double method_param = 0.001;
-        int max_iter = 2750;
+        double method_param = 0.003;
+        int max_iter = 600;
 #else
         int method = ANN_MLP::RPROP;
         double method_param = 0.1;

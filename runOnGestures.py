@@ -23,7 +23,7 @@ if __name__ == "__main__":
 				worked += result;
 				# print result;
 				count += 1;
-				print count;
+				# print count;
 
 	print "Worked: %i, out of %i" % (worked, count);
 

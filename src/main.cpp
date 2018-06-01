@@ -11,6 +11,10 @@
 
 #include "filters.h"
 
+// #define GENERATEDESCRIPTORS
+#define TESTSAMPLES
+// #define RUNONGESTURES
+
 using namespace std;
 using namespace cv;
 using namespace cv::ml;
@@ -39,6 +43,8 @@ float getPrediction(const char *filename);
 string getValue(float prediction);
 bool isInString(char element, string word);
 void sortFileIntoOrder(const char *filename);
+template<typename T>
+void printVector(vector<T> &vec);
 
 // This vector should have the order that the images are stored in. So the the letters index is the same as the 
 // index of the vector<string>'s index in vector<vector<String>>
@@ -48,120 +54,173 @@ map<char, int> keyForClasses;
 Ptr<ANN_MLP> model;
 
 int main(int argc, char const *argv[]) {
-	// Print version for my own knowledge (had to update it earlier)
-	// printf("OpenCV Version %i.%i\n", CV_MAJOR_VERSION, CV_MINOR_VERSION);
 
 	initKeyForClasses();
 	const char *filename;	
 	model = load_classifier<ANN_MLP>(classifier);
 
-	if (argc == 2) {
-		filename = argv[1];
-		// printf("Opening %s\n", filename);		
+	if (argc > 1) {
+		filename = argv[1];	
 	} else {
 		printf("Usage: main <filename>\n");
 		return 1;
 	}
 
-	int trueNum = 0;
-	int falseNum = 0;
-	// printf("Sign: %c, Predicted: %s\n", filename[17], getValue(getPrediction(filename)).c_str());
+	// vector<float> CE = generateEllipticalFourierDescriptors(filename);
+	// printVector(CE);
 
-	if (isInString(filename[17], getValue(getPrediction(filename)))) {
-		// printf("True\n");
-		trueNum++;
-		return 1;
-	} else {
-		// printf("False\n");
-		falseNum++;
-		return 0;
-	}
-
-	// printf("True: %i, False: %i\n", trueNum, falseNum);
+	// Mat 
 
 	// --------------------------------------------------------------------------------
 
-	// vector<float> CE = generateEllipticalFourierDescriptors(filename);
-	// Mat sample = (Mat_<float>(1, 14) << CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], 
-	// 									CE[7], CE[8], CE[9], CE[10], CE[11], CE[12], 
-	// 									CE[13], CE[14]);
-	// float r = model->predict(sample);
+#ifdef GENERATEDESCRIPTORS 
+	printf("Generating descriptors:\n");
+
+	const char *input = imageNamesFile;
+	const char *output = imageDescriptorsFile;
+
+	writeDescriptors(input, output);
+
+	// sortFileIntoOrder(output);
+
+#endif
+
+	// --------------------------------------------------------------------------------
+
+#ifdef TESTSAMPLES	
+	printf("Testing Samples:\n");
+
+	float r;
+
+	// 1
+	// Mat sample0 = (Mat_<float>(1, 9) << 0.483537,0.0897202,0.0896418,0.0904506,0.0587337,0.027807,0.00611194,0.0210563,0.0212424);
+	Mat sample0 = (Mat_<float>(1, 9) << 0.192112,0.209336,0.0675378,0.0860401,0.0592248,0.0402964,0.0492288,0.0460786,0.0377082);
+    r = model->predict(sample0);
+    printf("Predicted: %f\n", r);
+
+    // 2 
+    Mat sample1 = (Mat_<float>(1, 9) << 0.288093,0.263243,0.150342,0.13571,0.0671558,0.0666056,0.0320719,0.0334513,0.0270351);
+    r = model->predict(sample1);
+    printf("Predicted: %f\n", r);
+
+    // 3
+    Mat sample2 = (Mat_<float>(1, 9) << 0.863456,0.546805,0.379552,0.186811,0.167384,0.0793804,0.0974595,0.0781477,0.0230621);
+    r = model->predict(sample2);
+    printf("Predicted: %f\n", r);
+
+    // 4
+    Mat sample3 = (Mat_<float>(1, 9) << 0.67012,0.196405,0.460634,0.20463,0.116233,0.0743352,0.0783094,0.0690908,0.0195137);
+    r = model->predict(sample3);
+    printf("Predicted: %f\n", r);
+
+    // 5
+    Mat sample4 = (Mat_<float>(1, 9) << 1.20807,0.374261,0.27939,0.320042,0.273963,0.15068,0.119287,0.129897,0.061082);
+    r = model->predict(sample4);
+    printf("Predicted: %f\n", r);
+
+    // 6
+    Mat sample5 = (Mat_<float>(1, 9) << 0.583613,0.341947,0.123211,0.163423,0.101956,0.184059,0.230072,0.186048,0.0613964);
+    r = model->predict(sample5);
+    printf("Predicted: %f\n", r);
+
+	// 7
+	// Mat sample6 = (Mat_<float>(1, 9) << 0.997807,0.13736,0.304255,0.247654,0.223244,0.141323,0.107183,0.0630595,0.0491406);
+	// r = model->predict(sample6);
 	// printf("Predicted: %f\n", r);
 
+	// // 8
+	// Mat sample7 = (Mat_<float>(1, 9) << 0.778391,0.506046,0.385205,0.296748,0.228848,0.141737,0.169707,0.0558902,0.11081);
+	// r = model->predict(sample7);
+	// printf("Predicted: %f\n", r);
+
+	// // 9
+	// Mat sample8 = (Mat_<float>(1, 9) << 0.522996,0.159145,0.177614,0.302856,0.269031,0.180462,0.0505989,0.131701,0.0813645);
+	// r = model->predict(sample8);
+	// printf("Predicted: %f\n", r);
+
+	// // 10
+	// // Mat sample9 = (Mat_<float>(1, 9) << 0.750121,0.13988,0.22171,0.238601,0.203625,0.113773,0.161233,0.0718545,0.0621363);
+	// Mat sample9 = (Mat_<float>(1, 9) << 0.326396,0.24913,0.19725,0.112993,0.085271,0.0901283,0.0600791,0.0863757,0.0327872);
+	// r = model->predict(sample9);
+	// printf("Predicted: %f\n", r);
+
+#endif
+
 	// --------------------------------------------------------------------------------
 
-	// Mat *src = new Mat();
-	// *src = imread(filename);
-	// Mat copy(src->size(), src->type(), Scalar(0,0,0));
+#ifdef RUNONGESTURES
 
-	// // Binarizing Image
-	// Mat *binaryImage = threshold(src, 2, THRESHOLD_BINARY, false);
-	// // displayImage(binaryImage, "Filtered");
+	// printf("%s\n", filename);
+	float prediction = getPrediction(filename);
+	string value = getValue(prediction);
+	if (isInString(filename[17], value)) { 
+		return 1; 
+	} else { 
+		vector<float> CE = generateEllipticalFourierDescriptors(filename);
+		printf("%s, %c, %f, %s", filename, filename[17], prediction, value.c_str());
+		printf(" %f,%f,%f,%f,%f,%f,%f,%f,%f\n", CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], CE[7], CE[8], CE[9]);
+		return 0; 
+	}
 
-	// // Finding contours
-	// vector<vector<Point>> contours;
-	// vector<Vec4i> hierarchy;
-	// findContours(*binaryImage, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-
-	// // printf("Contours size: %i\n", (int)contours.size());
-
-	// // Drawing Contours
-	// int idx = 0;
-	// for (; idx >=0; idx = hierarchy[idx][0]) {
-	// 	Scalar colour(rand() & 255, rand() & 255, rand() & 255);
-	// 	drawContours(copy, contours, idx, colour, 1, 8, hierarchy);
-	// 	// imshow("Step", copy);
-	// 	// waitKey(0);
-	// }
-
-	// // Get Elliptical Fourier Descriptors
-	// vector<float> CE;
-	// ellipticFourierDescriptors(contours[0], CE);
-	// // for (int i = 0; i < CE.size(); i++) {
-	// // 	printf("%i: %f\n", (i+1), CE[i]);
-	// // }
-
-	// // File writing things
-	// clearContentsOfFile(imageDescriptorsFile);
-	// // writeDescriptors(imageDescriptorsFile, CE);
-	// // writeDescriptors(imageDescriptorsFile, CE);
-
-	// // // Display image with contours
-	// // displayImage(&copy, "Contours");
-
-	// // // Displaying original image
-	// // displayImage(src, "Original");
-
-	// // vector<vector<string>> vec;
-	// readInImageNames("images.txt");//, vec);
-	// printImageNames();
-
-	// // Mat *src = new Mat();
-	// // *src = imread(filename);
-	// // threshold(src, 40,THRESHOLD_BINARY, true);
-
-	// delete src;
-	// src = NULL;
-	// delete binaryImage;
-	// binaryImage = NULL;
-
-	// ---------------------------------------------------
-
-	// const char *input = imageNamesFile;
-	// const char *output = imageDescriptorsFile;
-
-
-	// // Writing descriptors from files
-	// printf("Reading image names from file: %s\n", input);
-	// printf("Written Elliptical Fourier Descriptors into file: %s\n", output);
-	// writeDescriptors(input, output);
-	// saveOrderOfClassesToFile("classOrderFile.txt");
-
-	// sortFileIntoOrder(imageDescriptorsFile);
-
-
+#endif
 	
 	return 0;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+vector<float> generateEllipticalFourierDescriptors(const char *filename) {
+	Mat *src = new Mat();
+	*src = imread(filename);
+	Mat copy(src->size(), src->type(), Scalar(0,0,0));
+	Mat *binaryImage = threshold(src, 2, THRESHOLD_BINARY, false);
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
+	findContours(*binaryImage, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+	int idx = 0;
+	for (; idx >=0; idx = hierarchy[idx][0]) {
+		Scalar colour(rand() & 255, rand() & 255, rand() & 255);
+		drawContours(copy, contours, idx, colour, 1, 8, hierarchy);
+	}
+
+	// imshow(filename, copy);
+	// waitKey(0);
+
+	vector<float> CE;
+	ellipticFourierDescriptors(contours[0], CE);
+
+	delete src;
+	src = NULL;
+	return CE;
+}
+
+void writeDescriptors(const char *imageFileName, const char *outputFilename) {
+	readInImageNames(imageFileName);
+
+	clearContentsOfFile(outputFilename);
+
+	for (int i = 0; i < imageNames.size(); i++) {
+		for (int j = 0; j < imageNames[i].size(); j++) {
+			vector<float> CE = generateEllipticalFourierDescriptors(imageNames[i][j].c_str());
+			char identifier = imageNames[i][j][17];
+			printf("%s,  %c, %i\n", imageNames[i][j].c_str(), identifier, keyForClasses[identifier]);
+			// cout << "identifier " << identifier << endl;
+			writeClass(outputFilename, identifier);
+			writeDescriptors(outputFilename, CE);
+		}
+	}
+}
+
+template<typename T>
+void printVector(vector<T> &vec) {
+	cout << "Printing vector: " << endl;
+	for (int i = 0; i < vec.size(); i++) {
+		cout << vec[i] << ",";
+	}
+	cout << endl;
 }
 
 void initKeyForClasses() {
@@ -205,11 +264,9 @@ void initKeyForClasses() {
 
 float getPrediction(const char *filename) {
 	vector<float> CE = generateEllipticalFourierDescriptors(filename);
-	Mat sample = (Mat_<float>(1, 14) << CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], 
-										CE[7], CE[8], CE[9], CE[10], CE[11], CE[12], 
-										CE[13], CE[14]);
+	// printVector(CE);
+	Mat sample = (Mat_<float>(1, 9) << CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], CE[7], CE[8], CE[9]);
 	float r = model->predict(sample);
-	// printf("Predicted: %f\n", r);
 	return r;
 }
 
@@ -282,7 +339,8 @@ string getValue(float prediction) {
 void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE) {
 	vector<float> ax, ay, bx, by;
 	int m = contour.size();
-	int n = 15;                        // Number of CEs 
+	// int n = 15;                        // Number of CEs 
+	int n = 10;                        // Number of CEs 
 	float t = (2*M_PI)/m;
 
 	for (int k = 0; k < n; k++) {
@@ -291,8 +349,8 @@ void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE) {
 
 		for (int i = 0; i < m; i++) {
 			ax[k] = ax[k] + contour[i].x * cos((k + 1) * i * t);
-			ay[k] = ay[k] + contour[i].y * cos((k + 1) * i * t);
 			bx[k] = bx[k] + contour[i].x * sin((k + 1) * i * t);
+			ay[k] = ay[k] + contour[i].y * cos((k + 1) * i * t);			
 			by[k] = by[k] + contour[i].y * sin((k + 1) * i * t);
 		}
 		ax[k] = ax[k]/m;
@@ -315,7 +373,6 @@ void saveOrderOfClassesToFile(const char *classOrderFile) {
 	}
 
 	file.close();
-
 }
 
 void clearContentsOfFile(const char *filename) {
@@ -399,50 +456,7 @@ void readInImageNames(const char *imageNamesFile) {//, vector<vector<String>> &i
 	// printImageNames();
 }
 
-vector<float> generateEllipticalFourierDescriptors(const char *filename) {
-	Mat *src = new Mat();
-	*src = imread(filename);
-	Mat copy(src->size(), src->type(), Scalar(0,0,0));
-	Mat *binaryImage = threshold(src, 2, THRESHOLD_BINARY, false);
-	vector<vector<Point>> contours;
-	vector<Vec4i> hierarchy;
-	findContours(*binaryImage, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-
-	int idx = 0;
-	for (; idx >=0; idx = hierarchy[idx][0]) {
-		Scalar colour(rand() & 255, rand() & 255, rand() & 255);
-		drawContours(copy, contours, idx, colour, 1, 8, hierarchy);
-	}
-
-	// imshow(filename, copy);
-	// waitKey(0);
-
-	vector<float> CE;
-	ellipticFourierDescriptors(contours[0], CE);
-
-	delete src;
-	src = NULL;
-	return CE;
-}
-
 // Will write the class and fourier descriptors from the file of image names into the file outputFileName
-
-void writeDescriptors(const char *imageFileName, const char *outputFilename) {
-	readInImageNames(imageFileName);
-
-	clearContentsOfFile(outputFilename);
-
-	for (int i = 0; i < imageNames.size(); i++) {
-		for (int j = 0; j < imageNames[i].size(); j++) {
-			vector<float> CE = generateEllipticalFourierDescriptors(imageNames[i][j].c_str());
-			char identifier = imageNames[i][j][17];
-			// printf("%s\n", imageNames[i][j].c_str());
-			// cout << "identifier " << identifier << endl;
-			writeClass(outputFilename, identifier);
-			writeDescriptors(outputFilename, CE);
-		}
-	}
-}
 
 template<typename T> 
 static Ptr<T> load_classifier(const string &filename) {
@@ -451,7 +465,7 @@ static Ptr<T> load_classifier(const string &filename) {
     if( model.empty() )
         cout << "Could not read the classifier " << filename<< endl;
     else
-        // cout << "The classifier " << filename << " is loaded.\n";
+        cout << "The classifier " << filename << " is loaded.\n";
 
     return model;
 }
@@ -520,4 +534,10 @@ void sortFileIntoOrder(const char *filename) {
 	}
 
 	output.close();
+}
+
+void testDescriptors(const char *dataFile) {
+	ifstream file(dataFile, ifstream::in);
+
+	
 }
