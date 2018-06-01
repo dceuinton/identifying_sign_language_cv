@@ -26,7 +26,7 @@ inline TermCriteria TC(int iterations, double eps) {
 // ----------------------------------------------------------------------
 
 bool buildClassifier(string &dataFile, string &saveFile, string &loadFile) {
-	const int classCount = 24;
+	const int classCount = 21;
 	Mat data;
 	Mat responses;
 
@@ -72,7 +72,8 @@ bool buildClassifier(string &dataFile, string &saveFile, string &loadFile) {
 		int method = ANN_MLP::BACKPROP;
 		double methodParameter = 0.003;
 		// int maxIterations = 1700; // BEST
-		int maxIterations = 2400; 
+		// int maxIterations = 2400; // 95.0% 
+		int maxIterations = 3000; // 95.5 %
 
 		Ptr<TrainData> tData = TrainData::create(trainData, ROW_SAMPLE, trainResponses);
 

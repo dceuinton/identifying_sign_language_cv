@@ -15,7 +15,8 @@
 // #define GENERATEDESCRIPTORS
 // #define TESTSAMPLES
 // #define RUNONGESTURES
-#define MY_CLASSIFIER_STUFF
+#define REGULAR
+// #define MY_CLASSIFIER_STUFF
 // #define TEST_MY_CLASSIFIER
 
 using namespace std;
@@ -70,9 +71,10 @@ int main(int argc, char const *argv[]) {
 	if (argc > 1) {
 		filename = argv[1];	
 	} else {
-		// printf("Usage: main <filename>\n");
-		// return 1;
+		cout << "Starting Camera" << endl;
 		filename = "./gestures/test.png";
+
+		// Camera function
 	}
 
 #ifdef MY_CLASSIFIER_STUFF
@@ -111,7 +113,7 @@ int main(int argc, char const *argv[]) {
 
 	// printf("%i, out of %i\n", correctPredictions, total);
 
-	// sortFileIntoOrder(output);
+	sortFileIntoOrder(output);
 
 #endif
 
@@ -186,11 +188,30 @@ int main(int argc, char const *argv[]) {
 	if (isInString(filename[17], value)) { 
 		return 1; 
 	} else { 
-		vector<float> CE = generateEllipticalFourierDescriptors(filename);
-		printf("%s, %c, %f, %s", filename, filename[17], prediction, value.c_str());
-		printf(" %f,%f,%f,%f,%f,%f,%f,%f,%f\n", CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], CE[7], CE[8], CE[9]);
+		// vector<float> CE = generateEllipticalFourierDescriptors(filename);
+		// printf("%s, %c, %f, %s", filename, filename[17], prediction, value.c_str());
+		// printf(" %f,%f,%f,%f,%f,%f,%f,%f,%f\n", CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], CE[7], CE[8], CE[9]);
 		return 0; 
 	}
+
+#endif
+
+#ifdef REGULAR
+
+	float prediction = getPrediction(filename);
+	string value = getValue(prediction);
+
+	printf("Value: %i\n", (int) prediction);
+
+	Mat image = imread(filename);
+
+	Point valueLoc; valueLoc.x = 10; valueLoc.y = 50;
+
+	// Write the thing on it
+	putText(image, value, valueLoc, FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255, 0, 0), 2.0);
+
+	imshow(filename, image);
+	waitKey(0);
 
 #endif
 	
@@ -276,34 +297,36 @@ void initKeyForClasses() {
 	keyForClasses['b'] = 12;
 	keyForClasses['c'] = 13;
 	keyForClasses['d'] = 2;
-	keyForClasses['e'] = 14;
-	keyForClasses['f'] = 15;
+	keyForClasses['e'] = 11;
+	keyForClasses['f'] = 14;
 	keyForClasses['g'] = 2;
-	keyForClasses['h'] = 16;
-	keyForClasses['i'] = 17;
-	keyForClasses['j'] = 17;
+	keyForClasses['h'] = 15;
+	keyForClasses['i'] = 16;
+	keyForClasses['j'] = 16;
 	keyForClasses['k'] = 3;
-	keyForClasses['l'] = 18;
+	keyForClasses['l'] = 17;
 	keyForClasses['m'] = 11;
-	keyForClasses['n'] = 19;
+	keyForClasses['n'] = 11;
 	keyForClasses['o'] = 1;
-	keyForClasses['p'] = 20;
-	keyForClasses['q'] = 21;
-	keyForClasses['r'] = 22;
+	keyForClasses['p'] = 18;
+	keyForClasses['q'] = 19;
+	keyForClasses['r'] = 2;
 	keyForClasses['s'] = 11;
 	keyForClasses['t'] = 11;
-	keyForClasses['u'] = 16;
+	keyForClasses['u'] = 15;
 	keyForClasses['v'] = 3;
 	keyForClasses['w'] = 7;
-	keyForClasses['x'] = 23;
-	keyForClasses['y'] = 24;
+	keyForClasses['x'] = 20;
+	keyForClasses['y'] = 21;
 	keyForClasses['z'] = 2;
 }
 
 float getPrediction(const char *filename) {
 	vector<float> CE = generateEllipticalFourierDescriptors(filename);
 	// printVector(CE);
-	Mat sample = (Mat_<float>(1, 9) << CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], CE[7], CE[8], CE[9]);
+	Mat sample = (Mat_<float>(1, 19) << CE[1], CE[2], CE[3], CE[4], CE[5], CE[6], CE[7], CE[8], CE[9],
+										CE[10], CE[11], CE[12], CE[13], CE[14], CE[15], CE[16], CE[17], 
+										CE[18], CE[19]);
 	float r = model->predict(sample);
 	return r;
 }
@@ -322,12 +345,12 @@ string getValue(float prediction) {
 		result = "[0, o]";
 	}
 	else if (prediction == 2.0f) {
-		result = "[1, d, g, z]";
+		result = "[1, d, g, r, z]";
 	}
 	else if (prediction == 3.0f) {
 		result = "[2, k, v]";
 	} else if (prediction == 4.0f) {
-		result = "[3, k]";
+		result = "[3]";
 	} else if (prediction == 5.0f) {
 		result = "[4]";
 	} else if (prediction == 6.0f) {
@@ -341,34 +364,35 @@ string getValue(float prediction) {
 	} else if (prediction == 10.0f) {
 		result = "[9]";
 	} else if (prediction == 11.0f) {
-		result = "[a, m, s, t]";
+		result = "[a, e, m, n, s, t]";
 	} else if (prediction == 12.0f) {
 		result = "[b]";
 	} else if (prediction == 13.0f) {
 		result = "[c]";
 	} else if (prediction == 14.0f) {
-		result = "[e]";
-	} else if (prediction == 15.0f) {
 		result = "[f]";
-	} else if (prediction == 16.0f) {
+	} else if (prediction == 15.0f) {
 		result = "[h, u]";
-	} else if (prediction == 17.0f) {
+	} else if (prediction == 16.0f) {
 		result = "[i, j]";
-	} else if (prediction == 18.0f) {
+	} else if (prediction == 17.0f) {
 		result = "[l]";
-	} else if (prediction == 19.0f) {
-		result = "[n]";
-	} else if (prediction == 20.0f) {
+	} else if (prediction == 18.0f) {
 		result = "[p]";
-	} else if (prediction == 21.0f) {
+	} else if (prediction == 19.0f) {
 		result = "[q]";
-	} else if (prediction == 22.0f) {
-		result = "[r]";
-	} else if (prediction == 23.0f) {
+	} else if (prediction == 20.0f) {
 		result = "[x]";
-	} else if (prediction == 24.0f) {
+	} else if (prediction == 21.0f) {
 		result = "[y]";
-	}
+	} 
+	// else if (prediction == 22.0f) {
+	// 	result = "[r]";
+	// } else if (prediction == 23.0f) {
+	// 	result = "[x]";
+	// } else if (prediction == 24.0f) {
+	// 	result = "[y]";
+	// }
 
 	return result;
 }
