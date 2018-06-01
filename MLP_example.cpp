@@ -109,6 +109,8 @@ static void test_and_save_classifier(const Ptr<StatModel>& model,
 cout << "Sample: " << responses.at<int>(i)-48 << " row " << data.row(i) << endl;
         float r = model->predict( sample );
 cout << "Predict:  r = " << r << endl;
+
+cout << (int) responses.at<int>(i) << " vs: " << (int)(responses.at<int>(i)-48) << endl;
    if( (int)r == (int)(responses.at<int>(i)-48) ) //prediction is correct
 	  training_correct_predict++;
    

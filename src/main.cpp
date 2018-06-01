@@ -10,10 +10,12 @@
 #include "opencv2/ml/ml.hpp"
 
 #include "filters.h"
+#include "classifier.h"
 
 // #define GENERATEDESCRIPTORS
-#define TESTSAMPLES
+// #define TESTSAMPLES
 // #define RUNONGESTURES
+#define TEST_CLASSIFIER_CLASS
 
 using namespace std;
 using namespace cv;
@@ -49,9 +51,12 @@ void printVector(vector<T> &vec);
 // This vector should have the order that the images are stored in. So the the letters index is the same as the 
 // index of the vector<string>'s index in vector<vector<String>>
 vector<char> classOrder;
-vector<vector<string>> imageNames;
+vector<string> imageNames;
 map<char, int> keyForClasses;
 Ptr<ANN_MLP> model;
+
+int correctPredictions = 0;
+int total = 0;
 
 int main(int argc, char const *argv[]) {
 
@@ -62,14 +67,20 @@ int main(int argc, char const *argv[]) {
 	if (argc > 1) {
 		filename = argv[1];	
 	} else {
-		printf("Usage: main <filename>\n");
-		return 1;
+		// printf("Usage: main <filename>\n");
+		// return 1;
+		filename = "./gestures/test.png";
 	}
 
-	// vector<float> CE = generateEllipticalFourierDescriptors(filename);
-	// printVector(CE);
+#ifdef TEST_CLASSIFIER_CLASS
 
-	// Mat 
+	Mat data, responses;
+	string smallSample = "smallSample.data";
+	string saveFile, loadFile;
+	// readNumClassData(smallSample, 9, &data, &responses);
+	buildClassifier(smallSample, saveFile, loadFile);
+
+#endif
 
 	// --------------------------------------------------------------------------------
 
@@ -80,6 +91,8 @@ int main(int argc, char const *argv[]) {
 	const char *output = imageDescriptorsFile;
 
 	writeDescriptors(input, output);
+
+	printf("%i, out of %i\n", correctPredictions, total);
 
 	// sortFileIntoOrder(output);
 
@@ -199,18 +212,26 @@ vector<float> generateEllipticalFourierDescriptors(const char *filename) {
 
 void writeDescriptors(const char *imageFileName, const char *outputFilename) {
 	readInImageNames(imageFileName);
-
 	clearContentsOfFile(outputFilename);
 
 	for (int i = 0; i < imageNames.size(); i++) {
-		for (int j = 0; j < imageNames[i].size(); j++) {
-			vector<float> CE = generateEllipticalFourierDescriptors(imageNames[i][j].c_str());
-			char identifier = imageNames[i][j][17];
-			printf("%s,  %c, %i\n", imageNames[i][j].c_str(), identifier, keyForClasses[identifier]);
-			// cout << "identifier " << identifier << endl;
-			writeClass(outputFilename, identifier);
-			writeDescriptors(outputFilename, CE);
+		vector<float> CE = generateEllipticalFourierDescriptors(imageNames[i].c_str());
+		char identifier = imageNames[i][17];
+		float correctClass = keyForClasses[identifier];
+
+		Mat sample = (Mat_<float>(1, 9) << CE[1],CE[2],CE[3],CE[4],CE[5],CE[6],CE[7],CE[8],CE[9]);
+		float r = model->predict(sample);
+		printf("Predicted: %f, correct: %f\n", r, correctClass);
+
+		if (r == correctClass) {
+			correctPredictions++;
 		}
+		total++;
+
+		// printf("%s,  %c, %i\n", imageNames[i].c_str(), identifier, keyForClasses[identifier]);
+		// cout << "identifier " << identifier << endl;
+		writeClass(outputFilename, identifier);
+		writeDescriptors(outputFilename, CE);
 	}
 }
 
@@ -418,10 +439,7 @@ int getIndex(vector<char> &order, char element) {
 void printImageNames() {
 	printf("Printing Image Names:\n");
 	for (int i = 0; i < imageNames.size(); i++) {
-		printf("\n");
-		for (int j = 0; j < imageNames[i].size(); j++) {
-			printf("%s\n", imageNames[i][j].c_str());
-		}
+			printf("%s\n", imageNames[i].c_str());
 	}
 }
 
@@ -435,25 +453,8 @@ void readInImageNames(const char *imageNamesFile) {//, vector<vector<String>> &i
 	string word;
 
 	while (getline(ss, word)) {
-		// printf("%s\n", word.c_str());
-		char identifier = word[15];
-		// printf("Character I want is: %c\n", element);
-		if (!contains(classOrder, word[15])) {
-			classOrder.push_back(identifier);
-			vector<string> images;
-			images.push_back(word);
-			imageNames.push_back(images);
-		} else {
-			int index = getIndex(classOrder, identifier);
-			imageNames[index].push_back(word);
-		}
+		imageNames.push_back(word);
 	}
-
-	// for (int i = 0; i < classOrder.size(); i++) {
-	// 	printf("%c\n", classOrder[i]);
-	// }
-
-	// printImageNames();
 }
 
 // Will write the class and fourier descriptors from the file of image names into the file outputFileName
@@ -539,5 +540,5 @@ void sortFileIntoOrder(const char *filename) {
 void testDescriptors(const char *dataFile) {
 	ifstream file(dataFile, ifstream::in);
 
-	
+
 }

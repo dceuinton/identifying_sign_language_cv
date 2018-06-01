@@ -1,6 +1,6 @@
 CC = g++
 BIN = main
-OBJS = $(BUILD)/$(BIN).o $(BUILD)/filters.o
+OBJS = $(BUILD)/$(BIN).o $(BUILD)/filters.o $(BUILD)/classifier.o
 CFLAGS = -std=c++17
 INC = -I./include
 LIB = `pkg-config --libs opencv`
