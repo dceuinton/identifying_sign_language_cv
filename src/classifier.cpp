@@ -30,7 +30,7 @@ bool buildClassifier(string &dataFile, string &saveFile, string &loadFile) {
 	Mat data;
 	Mat responses;
 
-	bool ok = readNumClassData(dataFile, 9, &data, &responses);
+	bool ok = readNumClassData(dataFile, 19, &data, &responses);
 	if (!ok) {
 		return ok;
 	}
@@ -60,7 +60,10 @@ bool buildClassifier(string &dataFile, string &saveFile, string &loadFile) {
 		// printMat("trainResponses", trainResponses, 0.0f);
 
 		// 2. Train the classifier
-		int layerSize[] = {data.cols, 100, 100, classCount};
+		// int layerSize[] = {data.cols, 100, 100, classCount};
+		// int layerSize[] = {data.cols, 150, 150 , classCount};
+		int layerSize[] = {data.cols, 50, 50, 50, classCount}; //BEST
+		// int layerSize[] = {data.cols, 50, 50, 50, 50,  classCount};
 		cout << "Sizeof layerSize " << sizeof(layerSize) << " sizeof layerSize[0] " << sizeof(layerSize[0]) << endl;
 		int nLayers = (int)(sizeof(layerSize)/sizeof(layerSize[0]));
 		cout << "Layers: " << nLayers << endl;
@@ -68,7 +71,8 @@ bool buildClassifier(string &dataFile, string &saveFile, string &loadFile) {
 
 		int method = ANN_MLP::BACKPROP;
 		double methodParameter = 0.003;
-		int maxIterations = 300;
+		// int maxIterations = 1700; // BEST
+		int maxIterations = 2400; 
 
 		Ptr<TrainData> tData = TrainData::create(trainData, ROW_SAMPLE, trainResponses);
 

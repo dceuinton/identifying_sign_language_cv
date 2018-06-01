@@ -15,7 +15,8 @@
 // #define GENERATEDESCRIPTORS
 // #define TESTSAMPLES
 // #define RUNONGESTURES
-#define TEST_CLASSIFIER_CLASS
+#define MY_CLASSIFIER_STUFF
+// #define TEST_MY_CLASSIFIER
 
 using namespace std;
 using namespace cv;
@@ -28,6 +29,7 @@ const char *testImageNamesFile = "testImages.txt";
 const char *testImageDescriptorsFile = "testDescriptors.txt";
 const char *classifier = "a3classifier.xml";
 const char *classOrderFile = "classOrderFile.txt";
+const char *slimShady = "theRealSlimShadyClassifier.xml";
 
 void saveOrderOfClassesToFile(const char *classOrderFile);
 void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE);
@@ -62,7 +64,8 @@ int main(int argc, char const *argv[]) {
 
 	initKeyForClasses();
 	const char *filename;	
-	model = load_classifier<ANN_MLP>(classifier);
+	// model = load_classifier<ANN_MLP>(classifier);
+	model = load_classifier<ANN_MLP>(slimShady);
 
 	if (argc > 1) {
 		filename = argv[1];	
@@ -72,13 +75,27 @@ int main(int argc, char const *argv[]) {
 		filename = "./gestures/test.png";
 	}
 
-#ifdef TEST_CLASSIFIER_CLASS
+#ifdef MY_CLASSIFIER_STUFF
 
 	Mat data, responses;
-	string smallSample = "smallSample.data";
-	string saveFile, loadFile;
-	// readNumClassData(smallSample, 9, &data, &responses);
-	buildClassifier(smallSample, saveFile, loadFile);
+
+	string descriptorFile = "descriptors.data";
+	string saveFile = "theRealSlimShadyClassifier.xml";
+	string empty = "";
+
+	buildClassifier(descriptorFile, saveFile, empty);
+
+#endif
+
+#ifdef TEST_MY_CLASSIFIER
+
+	Mat data, responses;
+
+	string descriptorFile = "descriptors.data";
+	string loadFile = "theRealSlimShadyClassifier.xml";
+	string empty = "";
+
+	buildClassifier(descriptorFile, empty, loadFile);
 
 #endif
 
@@ -92,7 +109,7 @@ int main(int argc, char const *argv[]) {
 
 	writeDescriptors(input, output);
 
-	printf("%i, out of %i\n", correctPredictions, total);
+	// printf("%i, out of %i\n", correctPredictions, total);
 
 	// sortFileIntoOrder(output);
 
@@ -219,14 +236,14 @@ void writeDescriptors(const char *imageFileName, const char *outputFilename) {
 		char identifier = imageNames[i][17];
 		float correctClass = keyForClasses[identifier];
 
-		Mat sample = (Mat_<float>(1, 9) << CE[1],CE[2],CE[3],CE[4],CE[5],CE[6],CE[7],CE[8],CE[9]);
-		float r = model->predict(sample);
-		printf("Predicted: %f, correct: %f\n", r, correctClass);
+		// Mat sample = (Mat_<float>(1, 9) << CE[1],CE[2],CE[3],CE[4],CE[5],CE[6],CE[7],CE[8],CE[9]);
+		// float r = model->predict(sample);
+		// printf("Predicted: %f, correct: %f\n", r, correctClass);
 
-		if (r == correctClass) {
-			correctPredictions++;
-		}
-		total++;
+		// if (r == correctClass) {
+		// 	correctPredictions++;
+		// }
+		// total++;
 
 		// printf("%s,  %c, %i\n", imageNames[i].c_str(), identifier, keyForClasses[identifier]);
 		// cout << "identifier " << identifier << endl;
@@ -361,7 +378,7 @@ void ellipticFourierDescriptors(vector<Point> &contour, vector<float> &CE) {
 	vector<float> ax, ay, bx, by;
 	int m = contour.size();
 	// int n = 15;                        // Number of CEs 
-	int n = 10;                        // Number of CEs 
+	int n = 20;                        // Number of CEs 
 	float t = (2*M_PI)/m;
 
 	for (int k = 0; k < n; k++) {
