@@ -50,6 +50,7 @@ bool isInString(char element, string word);
 void sortFileIntoOrder(const char *filename);
 template<typename T>
 void printVector(vector<T> &vec);
+void putLabel(cv::Mat &mat, const std::string label, cv::Point &p);
 
 // This vector should have the order that the images are stored in. So the the letters index is the same as the 
 // index of the vector<string>'s index in vector<vector<String>>
@@ -208,7 +209,8 @@ int main(int argc, char const *argv[]) {
 	Point valueLoc; valueLoc.x = 10; valueLoc.y = 50;
 
 	// Write the thing on it
-	putText(image, value, valueLoc, FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255, 0, 0), 2.0);
+	// putText(image, value, valueLoc, FONT_HERSHEY_PLAIN, 1.0, CV_RGB(255, 0, 0), 2.0);
+	putLabel(image, value, valueLoc);
 
 	imshow(filename, image);
 	waitKey(0);
@@ -246,6 +248,36 @@ vector<float> generateEllipticalFourierDescriptors(const char *filename) {
 	delete src;
 	src = NULL;
 	return CE;
+}
+
+void startCamera() {
+	cv::VideoCapture stream1(0);
+
+	if (!stream1.isOpened()) {
+		printf("ERROR: Camera isn't opening.\n");
+		return;
+	}
+
+	string windowName = "Camera Feed";
+	int numberOfFrames = 120, frames = 0;
+	double fps;
+	time_t tStart, tFinish;
+	Mat cameraFrame;
+
+	time(&tStart);
+
+	while(true) {
+		stream1.read(cameraFrame);
+		frames++;
+
+		time(&tFinish);
+		double seconds = difftime(tFinish, tStart);
+		fps = frames/seconds;
+		Point predictionPoint;
+		Point fpsPoint; fpsPoint.x = 50; fpsPoint.y = 200;
+
+		putLabel(cameraFrame, to_string(fps).substr(0,3), fpsPoint);
+	}
 }
 
 void writeDescriptors(const char *imageFileName, const char *outputFilename) {
@@ -383,7 +415,7 @@ string getValue(float prediction) {
 		result = "[q]";
 	} else if (prediction == 20.0f) {
 		result = "[x]";
-	} else if (prediction == 21.0f) {
+	} else if (prediction == 0.0f) {
 		result = "[y]";
 	} 
 	// else if (prediction == 22.0f) {
@@ -578,8 +610,17 @@ void sortFileIntoOrder(const char *filename) {
 	output.close();
 }
 
-void testDescriptors(const char *dataFile) {
-	ifstream file(dataFile, ifstream::in);
+// void testDescriptors(const char *dataFile) {
+// 	ifstream file(dataFile, ifstream::in);
+// }
 
+void putLabel(cv::Mat &mat, const std::string label, cv::Point &p) {
+    int fontface = cv::FONT_HERSHEY_SIMPLEX;
+    double scale = 0.8;
+    int thickness = 1;
+    int baseline = 0;
 
+    cv::Size text = cv::getTextSize(label, fontface, scale, thickness, &baseline);
+    cv::rectangle(mat, p+cv::Point(0, baseline), p + cv::Point(text.width, -text.height), CV_RGB(0,0,0), CV_FILLED);
+    cv::putText(mat, label, p, fontface, scale, CV_RGB(255,255,255), thickness, 8);
 }
